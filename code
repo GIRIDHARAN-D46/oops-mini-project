@@ -1,0 +1,172 @@
+public class Staff {
+    private int id;
+    private String name;
+    private String role; // e.g., Receptionist, Housekeeper, Chef
+    private String shift; // Morning, Afternoon, Night
+
+    public Staff(int id, String name, String role, String shift) {
+        this.id = id;
+        this.name = name;
+        this.role = role;
+        this.shift = shift;
+    }
+
+    // Getters and Setters
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getRole() { return role; }
+    public String getShift() { return shift; }
+
+    public void setShift(String shift) {
+        this.shift = shift;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + " | Name: " + name + " | Role: " + role + " | Shift: " + shift;
+    }
+}
+
+import java.util.*;
+import java.io.*;
+
+public class Manager {
+    private ArrayList<Staff> staffList = new ArrayList<>();
+
+    // Add new staff
+    public void addStaff(Staff s) {
+        staffList.add(s);
+        System.out.println("✅ Staff added successfully!");
+    }
+
+    // Display all staff
+    public void displayStaff() {
+        if (staffList.isEmpty()) {
+            System.out.println("No staff records found.");
+            return;
+        }
+        for (Staff s : staffList) {
+            System.out.println(s);
+        }
+    }
+
+    // Update staff shift
+    public void updateShift(int id, String newShift) {
+        for (Staff s : staffList) {
+            if (s.getId() == id) {
+                s.setShift(newShift);
+                System.out.println("✅ Shift updated successfully!");
+                return;
+            }
+        }
+        System.out.println("⚠️ Staff not found!");
+    }
+
+    // Remove staff
+    public void removeStaff(int id) {
+        staffList.removeIf(s -> s.getId() == id);
+        System.out.println("✅ Staff removed successfully!");
+    }
+
+    // Save to file
+    public void saveToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("staff_data.txt"))) {
+            for (Staff s : staffList) {
+                writer.write(s.getId() + "," + s.getName() + "," + s.getRole() + "," + s.getShift());
+                writer.newLine();
+            }
+            System.out.println("💾 Data saved to file successfully!");
+        } catch (IOException e) {
+            System.out.println("Error saving file: " + e.getMessage());
+        }
+    }
+
+    // Load from file
+    public void loadFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("staff_data.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                int id = Integer.parseInt(parts[0]);
+                String name = parts[1];
+                String role = parts[2];
+                String shift = parts[3];
+                staffList.add(new Staff(id, name, role, shift));
+            }
+            System.out.println("📂 Data loaded successfully!");
+        } catch (IOException e) {
+            System.out.println("Error loading file: " + e.getMessage());
+        }
+    }
+}
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Manager manager = new Manager();
+        manager.loadFromFile();
+
+        while (true) {
+            System.out.println("\n===== HOTEL STAFF SCHEDULING SYSTEM =====");
+            System.out.println("1. Add Staff");
+            System.out.println("2. View All Staff");
+            System.out.println("3. Update Staff Shift");
+            System.out.println("4. Remove Staff");
+            System.out.println("5. Save Data");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter ID: ");
+                    int id = sc.nextInt();
+                    sc.nextLine();
+                    System.out.print("Enter Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("Enter Role: ");
+                    String role = sc.nextLine();
+                    System.out.print("Enter Shift (Morning/Afternoon/Night): ");
+                    String shift = sc.nextLine();
+                    manager.addStaff(new Staff(id, name, role, shift));
+                    break;
+
+                case 2:
+                    manager.displayStaff();
+                    break;
+
+                case 3:
+                    System.out.print("Enter Staff ID to update shift: ");
+                    int uid = sc.nextInt();
+                    sc.nextLine();
+                    System.out.print("Enter new Shift: ");
+                    String newShift = sc.nextLine();
+                    manager.updateShift(uid, newShift);
+                    break;
+
+                case 4:
+                    System.out.print("Enter Staff ID to remove: ");
+                    int rid = sc.nextInt();
+                    manager.removeStaff(rid);
+                    break;
+
+                case 5:
+                    manager.saveToFile();
+                    break;
+
+                case 6:
+                    manager.saveToFile();
+                    System.out.println("👋 Exiting system. Goodbye!");
+                    sc.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
+        }
+    }
+}
